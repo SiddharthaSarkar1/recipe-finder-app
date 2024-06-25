@@ -5,7 +5,7 @@ const RecipeCardMain = ({recipe}) => {
   return (
     <>
         <div className="flex flex-col rounded-md bg-[#ecf7d4] overflow-hidden p-3 relative">
-            <a href="#" className="relative h-32">
+            <a href={recipe.strYoutube} target='_blank' className="relative h-32">
               <img
                 className="rounded-md w-full h-full object-cover cursor-pointer"
                 src={recipe.strMealThumb}

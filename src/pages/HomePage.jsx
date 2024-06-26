@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import RecipeCard from "../components/RecipeCard";
 import RecipeCardMain from "../components/RecipeCardMain";
+import { getRandomColor } from "../lib/utils";
 
 const alph = [
   "A",
@@ -36,10 +37,11 @@ const HomePage = () => {
   const [recipes, setRecipes] = useState([]);
   const [recipesByAlph, setRecipesByAlph] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(true);
 
   const fetchRecipes = async (searchQuery) => {
     setLoading(true);
-    setRecipesByAlph([]);
+    setRecipes([]);
 
     try {
       const res = await fetch(
@@ -47,7 +49,12 @@ const HomePage = () => {
       );
       const data = await res.json();
       console.log(data);
-      setRecipes(data.meals);
+      if (data.meals !== null) {
+        setRecipes(data.meals);
+      } else {
+        fetchRecipes("Rice");
+      }
+
     } catch (error) {
       console.log(error);
     } finally {
@@ -56,8 +63,8 @@ const HomePage = () => {
   };
 
   const fetchRecipesByAlphabate = async (searchQuery) => {
-    setLoading(true);
-    setRecipes([]);
+    setLoading2(true);
+    setRecipesByAlph([]);
 
     try {
       const res = await fetch(
@@ -65,17 +72,23 @@ const HomePage = () => {
       );
       const data = await res.json();
       console.log(data);
-      if(data.meals !== null){
+      if (data.meals !== null) {
         setRecipesByAlph(data.meals);
-      }else{
+      } else {
         fetchRecipesByAlphabate("A");
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setLoading2(false);
     }
   };
+
+  const handleSearchRecipe = (e) => {
+    e.preventDefault();
+    fetchRecipes(e.target[0].value)
+  }
+  
 
   useEffect(() => {
     fetchRecipes("chicken_breast");
@@ -85,17 +98,6 @@ const HomePage = () => {
   return (
     <div className="bg-[#faf9fb] p-10 flex-1">
       <div className="max-w-screen-lg mx-auto">
-        <form action="">
-          <label className="input shadow-md flex items-center gap-2">
-            <Search size={"24"} />
-            <input
-              type="text"
-              className="text-sm md:text-md grow"
-              placeholder="What do you want to cook today?"
-            />
-          </label>
-        </form>
-
         <div className="my-10">
           {alph.map((item) => (
             <div
@@ -120,13 +122,13 @@ const HomePage = () => {
         <div className="grid grid-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* <RecipeCard /> */}
 
-          {!loading &&
+          {!loading2 &&
             recipesByAlph.map((recipe, index) => (
-              <RecipeCardMain key={index} recipe={recipe} />
+              <RecipeCardMain key={index} recipe={recipe} {...getRandomColor()}/>
             ))}
 
-          {loading &&
-            [...Array(9)].map((_, index) => (
+          {loading2 &&
+            [...Array(6)].map((_, index) => (
               <div key={index} className="flex flex-col gap-4 w-full">
                 <div className="skeleton h-32 w-full"></div>
                 <div className="flex justify-between">
@@ -141,13 +143,25 @@ const HomePage = () => {
         <p className="text-slate-500 font-semibold ml-1 my-2 text-sm tracking-tight">
           Popular choices
         </p>
+        <div className="my-10">
+          <form onSubmit={handleSearchRecipe}>
+            <label className="input shadow-md flex items-center gap-2">
+              <Search size={"24"} />
+              <input
+                type="text"
+                className="text-sm md:text-md grow"
+                placeholder="What do you want to cook today?"
+              />
+            </label>
+          </form>
+        </div>
 
         <div className="grid grid-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* <RecipeCard /> */}
 
           {!loading &&
             recipes.map((recipe, index) => (
-              <RecipeCard key={index} recipe={recipe} />
+              <RecipeCard key={index} recipe={recipe} {...getRandomColor()} />
             ))}
 
           {loading &&
